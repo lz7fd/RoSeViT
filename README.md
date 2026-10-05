@@ -90,14 +90,13 @@ Scripts take `NPROC` and `BATCH` (per GPU); the defaults are the settings behind
 | `script/offline/ablation_a1.sh` | variant a | structured only / none / 1 | 100 | similar |
 | `script/offline/ablation_b1.sh` | variant b | structured only / 8 / 1 | 100 | similar |
 | `script/offline/ablation_c1.sh` | variant c | dense + structured / none / 1 | 100 | similar |
-| `script/offline/rosevit_c2.sh` | c-2 | dense + structured / none / 2 | 100 | about 2x the d-1 time; see note below |
 | `script/offline/rosevit_c4_stage1.sh` | c-4, stage 1 | dense + structured / none / 4 | 100 | 5 to 10 h per 30 epochs on 8 B200s |
 | `script/offline/rosevit_cd4_stage2.sh` | **c-d-4**, stage 2 | resume c-4, neighbourhood 8 / 4 | 30 | as above; produces the released checkpoint |
 
-The c-2 row of the paper came from an early checkpoint trained with a previous version of this code base;
-`rosevit_c2.sh` is the equivalent configuration in the current code (variant c, two recurrent steps, the d-1 recipe),
-not the original script. Stage 2 of c-d-4 runs 30 epochs with a cosine schedule starting at 3e-5, i.e. the learning-rate
-range that the stage-1 schedule covers over its epochs 71 to 100.
+Stage 2 of c-d-4 runs 30 epochs with a cosine schedule starting at 3e-5, i.e. the learning-rate range that the
+stage-1 schedule covers over its epochs 71 to 100. The paper's c-2 row came from an early checkpoint trained with a
+previous version of this code base and has no script here; variant c with `--recurrent-depth 2` is the equivalent
+configuration.
 
 The variant letters follow the paper's Figure 4; in code they are two flags:
 
@@ -108,15 +107,15 @@ The variant letters follow the paper's Figure 4; in code they are two flags:
 | c | `vit_dense` | `none` | dense pass, then controllers only |
 | **d** (RoSeViT) | `vit_dense` | `8` | dense pass, then controllers + 3x3 neighbourhood |
 
-`--recurrent-depth r` sets the number of recurrent refinement steps (`d-1`, `c-2`, `c-4`); `vit_dense` is the RoSeViT
+`--recurrent-depth r` sets the number of recurrent refinement steps (`d-1`, `c-4`); `vit_dense` is the RoSeViT
 block (dense pass followed by the structured pass), not a plain dense ViT. The plain dense baselines of the paper
 (VARC-ViT 18M, 66M, and the width-matched 28M control) are trained with the official VARC code; the exact commands are
 in `script/varc_baseline/`.
 
 ### 3. Test-time training
 
-One script covers every setting and benchmark (settings table and the exact commands behind each paper row in
-`script/ttt/README.md`):
+One script covers every setting and benchmark; the two commands below are the paper's controlled comparison
+(d-1-TTT1) and best single model (c-d-4-TTT3), and `script/ttt/README.md` lists the settings:
 
 ```
 CKPT=saves/rosevit_d1/checkpoint_final.pt  SETTING=TTT1 REC=1 PLA=8 SAVE=ARC_1_d1_TTT1  bash script/ttt/ttt.sh
