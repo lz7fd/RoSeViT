@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "RoSeViT: Role-Separated Vision Transformers for ARC Visual Reasoning"
+authors:
+  - family-names: Liu
+    given-names: Zhiguang
+  - family-names: Shang
+    given-names: Yi
+year: 2026
+conference:
+  name: "Advances in Neural Information Processing Systems (NeurIPS)"
+repository-code: "https://github.com/lz7fd/RoSeViT"
+license: MIT

@@ -1,0 +1,7 @@
+torch==2.7.0
+wandb==0.22.0
+huggingface_hub
+timm
+einops
+datasets
+diffusers

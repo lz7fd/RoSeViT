@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+wandb/
+saves/
+outputs/
+ckpts/
+*.pt
+*.zip
+raw_data/ARC-AGI/
+raw_data/ARC-AGI-2/
+raw_data/re_arc/
+*.html
+*.log
