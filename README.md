@@ -22,11 +22,11 @@ RoSeViT-Ensemble improves VARC-Ensemble from 60.4 to 62.6.
 |---|---|---|---|---|
 | VARC-ViT (dense) | 18M | 54.5 | 8.3 | VARC, CVPR 2026 |
 | VARC-ViT, width-matched (dense) | 28M | 53.6 | – | parameter-matched control, 8 TTT seeds |
-| RoSeViT d-1-TTT1 | 28M | **56.6** | 6.9 | the controlled backbone swap |
+| RoSeViT d-1-TTT1 | 28M | **56.6** | 6.9 | the controlled backbone swap (`rosevit_d1_offline.pt` + TTT1) |
 | RoSeViT c-2-TTT2 | 28M | 58.0 | 8.3 | two recurrent steps |
-| RoSeViT c-d-4-TTT3 | 28M | **58.8** | **11.0** | best single model (released checkpoint) |
+| RoSeViT c-d-4-TTT3 | 28M | **58.8** | **11.0** | best single model (`rosevit_cd4_offline.pt` + TTT3) |
 | VARC-Ensemble | 73M | 60.4 | 11.1 | |
-| RoSeViT-Ensemble | 83M | **62.6** | **13.5** | c-d-4-TTT3 + VARC's released predictions |
+| RoSeViT-Ensemble | 83M | **62.6** | **13.5** | c-d-4-TTT3 replaces the ViT member of VARC-Ensemble; VARC's released Unet predictions reused |
 
 <img src="assets/gain_decomposition.png" alt="ARC-1 gain decomposition" width="55%" />
 
@@ -45,28 +45,44 @@ hf auth login      # only needed to download the checkpoint / predictions
 wandb login        # optional
 ```
 
-## Download the trained checkpoint and predictions
+## Download the trained checkpoints and predictions
 
-We release the best single model, **RoSeViT c-d-4** after offline training (it still needs test-time training to produce
-the numbers above), and the predictions behind our ARC-1/ARC-2 rows.
+Two offline-trained checkpoints are released at [lz7fdmu/RoSeViT](https://huggingface.co/lz7fdmu/RoSeViT). Both are
+*offline* checkpoints: the numbers above require VARC-style test-time training on each evaluation task (step 3 below).
+
+| File | Model | Offline training | Behind |
+|---|---|---|---|
+| `rosevit_d1_offline.pt` | d-1 | 100 epochs (`script/offline/rosevit_d1.sh`) | Table 1 and the d-1 rows of Table 3a (56.6 on ARC-1 with TTT1) |
+| `rosevit_cd4_offline.pt` | c-d-4 | c-4 for 100 epochs, then neighbourhood 8 for 30 epochs (`rosevit_c4_stage1.sh`, `rosevit_cd4_stage2.sh`) | best single model (58.8 / 11.0 with TTT3) and RoSeViT-Ensemble |
+
+The predictions behind the paper's rows are released at
+[lz7fdmu/RoSeViT_predictions](https://huggingface.co/datasets/lz7fdmu/RoSeViT_predictions) in VARC's per-task JSON
+format (`<task>_predictions.json`, one folder per TTT attempt), so every number below can be recomputed without a GPU:
+
+| Folder | Content | pass@2 per attempt |
+|---|---|---|
+| `ARC-1_cd4_TTT3/attempt_{0..3}` | four TTT attempts of c-d-4-TTT3 on the 400 ARC-1 evaluation tasks | 58.4, 59.1, 59.8, 57.9 (mean 58.8, std 0.7) |
+| `ARC-2_cd4_TTT3/attempt_{0..3}` | the same on the 120 ARC-2 evaluation tasks | 12.6, 11.0, 10.1, 10.1 (mean 11.0, std 1.0) |
+| `ARC-1_d1_TTT1/attempt_{0,1}` | two TTT attempts of d-1-TTT1 on ARC-1 | 56.8, 56.5 (mean 56.6) |
 
 ```
-mkdir -p saves/rosevit_cd4
-hf download lz7fdmu/RoSeViT --local-dir saves/rosevit_cd4
-hf download lz7fdmu/RoSeViT_predictions --local-dir . --repo-type dataset
-unzip RoSeViT_predictions.zip
+hf download lz7fdmu/RoSeViT --local-dir saves/rosevit
+hf download lz7fdmu/RoSeViT_predictions RoSeViT_predictions.zip --repo-type dataset --local-dir . && unzip RoSeViT_predictions.zip
+hf download VisionARC/VARC_predictions VARC_predictions.zip --repo-type dataset --local-dir . && unzip VARC_predictions.zip   # ensembles only
 ```
 
-For the ensemble you also need VARC's released predictions: `hf download VisionARC/VARC_predictions --local-dir . --repo-type dataset && unzip VARC_predictions.zip`.
-
-Scores and HTML galleries from downloaded predictions:
+Scores and HTML galleries from the released predictions (the ground truth is read from `raw_data/`, see step 1):
 
 ```
-bash script/analysis/arc_1_rosevit.sh      # arc_agi_1_rosevit.html
-bash script/analysis/arc_1_ensemble.sh     # arc_agi_1_rosevit_ensemble.html
-bash script/analysis/arc_2_rosevit.sh
-bash script/analysis/arc_2_ensemble.sh
+bash script/analysis/arc_1_rosevit.sh       # c-d-4-TTT3, one pass@2 per attempt: 58.4 / 59.1 / 59.8 / 57.9
+bash script/analysis/arc_1_ensemble.sh      # RoSeViT-Ensemble 62.6 = four c-d-4-TTT3 attempts + VARC's four released Unet attempts
+bash script/analysis/arc_2_rosevit.sh       # 12.6 / 11.0 / 10.1 / 10.1
+bash script/analysis/arc_2_ensemble.sh      # 13.5
+PRED=RoSeViT_predictions/ARC-1_d1_TTT1 bash script/analysis/arc_1_rosevit.sh   # d-1-TTT1: 56.8 / 56.5
 ```
+
+RoSeViT-Ensemble replaces the ViT member of VARC-Ensemble with c-d-4-TTT3 and keeps VARC's Unet member unchanged
+(VARC's own eight released attempts, ViT plus Unet, give 60.5 / 11.1 with the same script).
 
 ## Reproduce from scratch
 
@@ -86,12 +102,12 @@ Scripts take `NPROC` and `BATCH` (per GPU); the defaults are the settings behind
 
 | Script | Model | Block / neighbourhood / steps | Epochs | Timing |
 |---|---|---|---|---|
-| `script/offline/rosevit_d1.sh` | **d-1** (Table 1, controlled swap) | dense + structured / 8 / 1 | 100 | about 2 days on 2 H100s (global batch 128), or 12 h on 8 |
+| `script/offline/rosevit_d1.sh` | **d-1** (Table 1, controlled swap) | dense + structured / 8 / 1 | 100 | about 2 days on 2 H100s (global batch 128), or 12 h on 8; writes `saves/rosevit/rosevit_d1_offline.pt` |
 | `script/offline/ablation_a1.sh` | variant a | structured only / none / 1 | 100 | similar |
 | `script/offline/ablation_b1.sh` | variant b | structured only / 8 / 1 | 100 | similar |
 | `script/offline/ablation_c1.sh` | variant c | dense + structured / none / 1 | 100 | similar |
 | `script/offline/rosevit_c4_stage1.sh` | c-4, stage 1 | dense + structured / none / 4 | 100 | 5 to 10 h per 30 epochs on 8 B200s |
-| `script/offline/rosevit_cd4_stage2.sh` | **c-d-4**, stage 2 | resume c-4, neighbourhood 8 / 4 | 30 | as above; produces the released checkpoint |
+| `script/offline/rosevit_cd4_stage2.sh` | **c-d-4**, stage 2 | resume c-4, neighbourhood 8 / 4 | 30 | as above; writes `saves/rosevit/rosevit_cd4_offline.pt`, the released file |
 
 Stage 2 of c-d-4 runs 30 epochs with a cosine schedule starting at 3e-5, i.e. the learning-rate range that the
 stage-1 schedule covers over its epochs 71 to 100. The paper's c-2 row came from an early checkpoint trained with a
@@ -118,21 +134,25 @@ One script covers every setting and benchmark; the two commands below are the pa
 (d-1-TTT1) and best single model (c-d-4-TTT3), and `script/ttt/README.md` lists the settings:
 
 ```
-CKPT=saves/rosevit_d1/checkpoint_final.pt  SETTING=TTT1 REC=1 PLA=8 SAVE=ARC_1_d1_TTT1  bash script/ttt/ttt.sh
-CKPT=saves/rosevit_cd4/checkpoint_final.pt SETTING=TTT3 REC=4 PLA=8 SAVE=ARC_1_cd4_TTT3 bash script/ttt/ttt.sh
-DATASET=ARC-AGI-2 CKPT=saves/rosevit_cd4/checkpoint_final.pt SETTING=TTT3 REC=4 PLA=8 SAVE=ARC_2_cd4_TTT3 bash script/ttt/ttt.sh
+CKPT=saves/rosevit/rosevit_d1_offline.pt  SETTING=TTT1 REC=1 PLA=8 SAVE=ARC_1_d1_TTT1  bash script/ttt/ttt.sh
+CKPT=saves/rosevit/rosevit_cd4_offline.pt SETTING=TTT3 REC=4 PLA=8 SAVE=ARC_1_cd4_TTT3 bash script/ttt/ttt.sh
+DATASET=ARC-AGI-2 CKPT=saves/rosevit/rosevit_cd4_offline.pt SETTING=TTT3 REC=4 PLA=8 SAVE=ARC_2_cd4_TTT3 bash script/ttt/ttt.sh
 ```
 
 ARC-1 TTT over the 400 evaluation tasks takes roughly 10 to 20 hours on an 8-GPU node (ARC-2 has 120 tasks and is
-faster). Expected results: d-1-TTT1 about 56 to 57 on ARC-1 (56.6 is the mean of 4 runs) and 6 to 8 on ARC-2;
+faster). Each run writes two attempts, `outputs/<SAVE>_attempt_0` and `_attempt_1` (`--ttt-num-each 2`); the released
+c-d-4-TTT3 predictions are two such runs. Expected results: d-1-TTT1 about 56 to 57 on ARC-1 (56.6 is the mean of the
+two released attempts) and 6 to 8 on ARC-2;
 c-d-4-TTT3 about 58 to 59.5 on ARC-1 (58.8 +- 0.7) and 10 to 12 on ARC-2 (11.0 +- 1.0). VARC reports [52, 56] for
 its own ViT under the same protocol.
 
 ### 4. Analysis
 
+The scripts above default to the released prediction folders; point them at your own run with `PRED` and `ATTEMPTS`:
+
 ```
-bash script/analysis/arc_1_rosevit.sh      # edit --output-root to your SAVE name
-bash script/analysis/arc_1_ensemble.sh
+PRED=outputs ATTEMPTS="ARC_1_cd4_TTT3_attempt_0 ARC_1_cd4_TTT3_attempt_1" bash script/analysis/arc_1_rosevit.sh
+PRED=outputs ATTEMPTS="ARC_1_cd4_TTT3_attempt_0 ARC_1_cd4_TTT3_attempt_1" bash script/analysis/arc_1_ensemble.sh
 ```
 
 ## Appendix experiments

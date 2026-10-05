@@ -4,7 +4,7 @@
 set -e
 NPROC=${NPROC:-8}
 BATCH=${BATCH:-32}
-OUT=${OUT:-saves/rosevit_c4_stage1}
+OUT=${OUT:-saves/rosevit}
 mkdir -p $OUT
 torchrun --nproc_per_node=$NPROC offline_train_ARC.py \
   --architecture "vit_dense" \
@@ -13,8 +13,8 @@ torchrun --nproc_per_node=$NPROC offline_train_ARC.py \
   --epochs 100 \
   --batch-size $BATCH \
   --learning-rate 1e-4 \
-  --save-path "$OUT/checkpoint_final.pt" \
-  --best-save-path "$OUT/checkpoint_best.pt" \
+  --save-path "$OUT/rosevit_c4_offline.pt" \
+  --best-save-path "$OUT/rosevit_c4_best_val.pt" \
   --depth 10 \
   --image-size 64 \
   --patch-size 2 \

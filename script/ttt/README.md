@@ -14,9 +14,9 @@ The two paper rows (ARC-1; use `DATASET=ARC-AGI-2` for ARC-2):
 
 ```
 # Table 1: d-1-TTT1, the controlled backbone comparison
-CKPT=saves/rosevit_d1/checkpoint_final.pt  SETTING=TTT1 REC=1 PLA=8 SAVE=ARC_1_d1_TTT1  bash script/ttt/ttt.sh
-# Table 3: c-d-4-TTT3, the best single model (released checkpoint)
-CKPT=saves/rosevit_cd4/checkpoint_final.pt SETTING=TTT3 REC=4 PLA=8 SAVE=ARC_1_cd4_TTT3 bash script/ttt/ttt.sh
+CKPT=saves/rosevit/rosevit_d1_offline.pt  SETTING=TTT1 REC=1 PLA=8 SAVE=ARC_1_d1_TTT1  bash script/ttt/ttt.sh
+# Table 3: c-d-4-TTT3, the best single model
+CKPT=saves/rosevit/rosevit_cd4_offline.pt SETTING=TTT3 REC=4 PLA=8 SAVE=ARC_1_cd4_TTT3 bash script/ttt/ttt.sh
 ```
 
 The other adaptation rows of Table 3a are the same script with `SETTING=TTT2` or `SETTING=TTT3` on the d-1

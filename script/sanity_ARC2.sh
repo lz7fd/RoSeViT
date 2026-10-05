@@ -1,6 +1,6 @@
 #!/bin/bash
 # One-task sanity check of the augmented TTT split (ARC2) with the released c-d-4 checkpoint (TTT3 settings, one run).
-CKPT=${CKPT:-saves/rosevit_cd4/checkpoint_final.pt}
+CKPT=${CKPT:-saves/rosevit/rosevit_cd4_offline.pt}
 task=${TASK:-65b59efc}
 python test_time_train_ARC.py \
   --epochs 300 --num-success 3 --learning-rate 3e-5 --correct-lambda 0.05 --ce-reward-weight-correct 0.05 \

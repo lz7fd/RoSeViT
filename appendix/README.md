@@ -17,7 +17,7 @@ weights, attention masks, the dense pass and the local neighbourhoods are never 
 Example:
 
 ```
-python appendix/rebuttal_offline_ablation.py --ckpt saves/rosevit_d1/checkpoint_final.pt
+python appendix/rebuttal_offline_ablation.py --ckpt saves/rosevit/rosevit_d1_offline.pt
 python appendix/rebuttal_dissociation_probe.py --layers 1,3,6,10 --batches 300
 ROSE_DUAL_EVAL=1 bash script/ttt/ttt.sh   # with the d-1 settings of TTT1, see script/ttt/README.md
 ```
