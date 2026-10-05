@@ -17,7 +17,6 @@ torchrun --nproc_per_node=$NPROC offline_train_ARC.py \
   --resume-reset-optimizer \
   --resume-reset-epoch \
   --save-path "$OUT/rosevit_cd4_offline.pt" \
-  --best-save-path "$OUT/rosevit_cd4_best_val.pt" \
   --depth 10 \
   --image-size 64 \
   --patch-size 2 \

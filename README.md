@@ -63,7 +63,10 @@ format (`<task>_predictions.json`, one folder per TTT attempt), so every number 
 |---|---|---|
 | `ARC-1_cd4_TTT3/attempt_{0..3}` | four TTT attempts of c-d-4-TTT3 on the 400 ARC-1 evaluation tasks | 58.4, 59.1, 59.8, 57.9 (mean 58.8, std 0.7) |
 | `ARC-2_cd4_TTT3/attempt_{0..3}` | the same on the 120 ARC-2 evaluation tasks | 12.6, 11.0, 10.1, 10.1 (mean 11.0, std 1.0) |
-| `ARC-1_d1_TTT1/attempt_{0,1}` | two TTT attempts of d-1-TTT1 on ARC-1 | 56.8, 56.5 (mean 56.6) |
+
+For the controlled comparison (d-1-TTT1) the same dataset holds the HTML galleries of its two attempts,
+`html/ARC-1_d1_TTT1_attempt_{0,1}.html` (56.8 and 56.5, mean 56.6): each gallery starts with the pass@1 / pass@2 /
+oracle scores and lists every task's demonstrations, test input, answer and the two voted predictions.
 
 ```
 hf download lz7fdmu/RoSeViT --local-dir saves/rosevit
@@ -78,7 +81,6 @@ bash script/analysis/arc_1_rosevit.sh       # c-d-4-TTT3, one pass@2 per attempt
 bash script/analysis/arc_1_ensemble.sh      # RoSeViT-Ensemble 62.6 = four c-d-4-TTT3 attempts + VARC's four released Unet attempts
 bash script/analysis/arc_2_rosevit.sh       # 12.6 / 11.0 / 10.1 / 10.1
 bash script/analysis/arc_2_ensemble.sh      # 13.5
-PRED=RoSeViT_predictions/ARC-1_d1_TTT1 bash script/analysis/arc_1_rosevit.sh   # d-1-TTT1: 56.8 / 56.5
 ```
 
 RoSeViT-Ensemble replaces the ViT member of VARC-Ensemble with c-d-4-TTT3 and keeps VARC's Unet member unchanged
@@ -141,8 +143,8 @@ DATASET=ARC-AGI-2 CKPT=saves/rosevit/rosevit_cd4_offline.pt SETTING=TTT3 REC=4 P
 
 ARC-1 TTT over the 400 evaluation tasks takes roughly 10 to 20 hours on an 8-GPU node (ARC-2 has 120 tasks and is
 faster). Each run writes two attempts, `outputs/<SAVE>_attempt_0` and `_attempt_1` (`--ttt-num-each 2`); the released
-c-d-4-TTT3 predictions are two such runs. Expected results: d-1-TTT1 about 56 to 57 on ARC-1 (56.6 is the mean of the
-two released attempts) and 6 to 8 on ARC-2;
+c-d-4-TTT3 predictions are two such runs. Expected results: d-1-TTT1 about 56 to 57 on ARC-1 (56.6 is the mean of two
+attempts, 56.8 and 56.5, whose galleries are in the predictions release) and 6 to 8 on ARC-2;
 c-d-4-TTT3 about 58 to 59.5 on ARC-1 (58.8 +- 0.7) and 10 to 12 on ARC-2 (11.0 +- 1.0). VARC reports [52, 56] for
 its own ViT under the same protocol.
 

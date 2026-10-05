@@ -14,7 +14,6 @@ torchrun --nproc_per_node=$NPROC offline_train_ARC.py \
   --batch-size $BATCH \
   --learning-rate 3e-4 \
   --save-path "$OUT/rosevit_d1_offline.pt" \
-  --best-save-path "$OUT/rosevit_d1_best_val.pt" \
   --depth 10 \
   --image-size 64 \
   --patch-size 2 \
