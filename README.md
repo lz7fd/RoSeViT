@@ -90,9 +90,14 @@ Scripts take `NPROC` and `BATCH` (per GPU); the defaults are the settings behind
 | `script/offline/ablation_a1.sh` | variant a | structured only / none / 1 | 100 | similar |
 | `script/offline/ablation_b1.sh` | variant b | structured only / 8 / 1 | 100 | similar |
 | `script/offline/ablation_c1.sh` | variant c | dense + structured / none / 1 | 100 | similar |
-| `script/offline/rosevit_c2.sh` | c-2 | dense + structured / none / 2 | 100 | about 2x the d-1 time |
+| `script/offline/rosevit_c2.sh` | c-2 | dense + structured / none / 2 | 100 | about 2x the d-1 time; see note below |
 | `script/offline/rosevit_c4_stage1.sh` | c-4, stage 1 | dense + structured / none / 4 | 100 | 5 to 10 h per 30 epochs on 8 B200s |
 | `script/offline/rosevit_cd4_stage2.sh` | **c-d-4**, stage 2 | resume c-4, neighbourhood 8 / 4 | 30 | as above; produces the released checkpoint |
+
+The c-2 row of the paper came from an early checkpoint trained with a previous version of this code base;
+`rosevit_c2.sh` is the equivalent configuration in the current code (variant c, two recurrent steps, the d-1 recipe),
+not the original script. Stage 2 of c-d-4 runs 30 epochs with a cosine schedule starting at 3e-5, i.e. the learning-rate
+range that the stage-1 schedule covers over its epochs 71 to 100.
 
 The variant letters follow the paper's Figure 4; in code they are two flags:
 

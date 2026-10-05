@@ -1,5 +1,5 @@
 #!/bin/bash
-# RoSeViT c-d-4, stage 2: resume the c-4 checkpoint and enable the 3x3 workspace neighbourhood (variant d) for 30 more epochs at lr 3e-5. Produces the released checkpoint.
+# RoSeViT c-d-4, stage 2: resume the c-4 checkpoint and enable the 3x3 workspace neighbourhood (variant d) for 30 more epochs on a cosine schedule from 3e-5 (the learning-rate range of stage-1 epochs 71-100). Produces the released checkpoint.
 # Paper setting: 8 GPUs x batch 32 per GPU (global batch 256). NPROC and BATCH can be changed together to keep the global batch.
 set -e
 NPROC=${NPROC:-8}

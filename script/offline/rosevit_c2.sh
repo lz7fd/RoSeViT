@@ -1,5 +1,7 @@
 #!/bin/bash
 # RoSeViT c-2 (Table 3a): variant c with two recurrent refinement steps. 100 epochs.
+# Note: the paper's c-2 checkpoint was trained with an earlier version of this code base; this script is the equivalent
+# configuration (d-1 recipe with --recurrent-depth 2), not the original run script.
 # Paper setting: 2 GPUs x batch 64 per GPU (global batch 128). NPROC and BATCH can be changed together to keep the global batch.
 set -e
 NPROC=${NPROC:-2}
