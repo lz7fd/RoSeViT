@@ -185,6 +185,8 @@ augmentation, training and test-time-training loops, voting inference and analys
 backbone (`src/ARC_ViT_dense.py`, `src/ARC_ViT_struct.py`) and adds the scripts and experiments above. Both are MIT
 licensed.
 
+LLM assistants were used to help write parts of the scripts and documentation in this repository.
+
 ## Citation
 
 ```
