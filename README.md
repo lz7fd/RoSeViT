@@ -1,5 +1,7 @@
 # RoSeViT: Role-Separated Vision Transformers for ARC Visual Reasoning
 
+[**Paper (arXiv)**](https://arxiv.org/abs/2601.13562) | Want to see a different domain? [**RoSe in diffusion: RoSeDiT**](https://github.com/lz7fd/RoSeDiT)
+
 <img src="assets/teaser.png" alt="RoSeViT applies the inferred transformation consistently where a dense ViT does not" width="90%" />
 
 Official code for the NeurIPS 2026 paper **RoSeViT: Role-Separated Vision Transformers for ARC Visual Reasoning**
